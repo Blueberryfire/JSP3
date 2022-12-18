@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<script>
+    //coded by Jonah Reisner
+    function init(){
+        t1=document.getElementById("1");
+        t2=document.getElementById("2");
+        t3=document.getElementById("3");
+        t4=document.getElementById("4");
+        t5=document.getElementById("5");
+        t6=document.getElementById("6");
+        t7=document.getElementById("7");
+        t8=document.getElementById("8");
+        t9=document.getElementById("9");
+        t10=document.getElementById("10");
+        t11=document.getElementById("11");
+        t12=document.getElementById("12");
+        t13=document.getElementById("13");
+        t14=document.getElementById("14");
+        t15=document.getElementById("15");
+        blank=document.getElementById("blank");
+        tiles=[[t1,t2,t3,t4],[t5,t6,t7,t8],[t9,t10,t11,t12],[t13,t14,t15,blank]];
+        layout=[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,100]];
+        colors=[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,100]];
+        score=0;
+        reapplyTiles();
+        randomColorGenerator();
+        reapplyTiles();
+        randomMove(2000);
+        reapplyTiles();
+        score=0;
+        document.getElementById("score").innerHTML="Score: " + score;
+    }
+    function randomColorGenerator(){
+        for (let row = 0; row < layout.length; row++) {
+            for (let column = 0; column < layout[row].length; column++) {
+                color='#'+(0x1000000+Math.random()*0xffffff).toString(16).substr(1,6);
+                colors[row][column]=color;
+                tiles[row][column].style.backgroundColor=color;
+            }     
+        }
+        blank.style.backgroundColor="white";
+        colors[3][3]="white";
+    }
+    function checkCorrect(){
+        let correct=true;
+        return      layout[0][0]==1 && layout[0][1]==2 && layout[0][2]==3 && layout[0][3]==4 && 
+                    layout[1][0]==5 && layout[1][1]==6 && layout[1][2]==7 && layout[1][3]==8 && 
+                    layout[2][0]==9 && layout[2][1]==10 && layout[2][2]==11 && layout[2][3]==12 && 
+                    layout[3][0]==13 && layout[3][1]==14 && layout[3][2]==15 && layout[3][3]==100; 
+
+
+
+        // for(let row=0; row<4; row++){
+        //     for(let column = 0; column<4; column++){
+        //         if(layout[row][column]==100){
+        //             if(tiles[row][column].id!="blank"){
+        //                 correct=false;
+        //             }
+        //         }
+        //         else{
+        //             if(layout[row][column].toString()!=tiles[row][column].id){
+        //                 correct=false;
+        //             }
+        //         }
+        //     }
+        // }
+        // console.log("solution :" + correct);
+
+
+        // return correct;
+    }
+    function clicked(number){
+
+        //have to convert nominal number to real number 
+        let realNumber=null;
+        let ogLayout=[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,100]];
+        for (let index = 0; index < layout.length; index++) {
+            for (let j = 0; j < layout[index].length; j++) {
+                if(ogLayout[index][j]==number){
+                    realNumber=layout[index][j];
+                }
+            }     
+        }
+        move(realNumber);
+        //printLayout();
+        //printTiles();
+        if (checkCorrect()){
+            document.body.style.backgroundColor="green";
+        }
+        else{
+            document.body.style.backgroundColor="white";
+        }
+    }
+    function printLayout(){
+        layout.forEach(element => {
+            console.log("[ " + element[0] + ", " + element[1]  + ", "+ element[2]  + ", "+ element[3] + " ]");
+        });
+    }
+    function printTiles(){
+        tiles.forEach(element => {
+            console.log("[ " + element[0].id + ", " + element[1].id  + ", "+ element[2].id  + ", "+ element[3].id + " ]");
+        });
+    }
+    function reapplyTiles(){
+        for (let index = 0; index < layout.length; index++) {
+            for (let j = 0; j < layout[index].length; j++) {
+                tiles[index][j].style.backgroundColor=colors[index][j];
+                tiles[index][j].innerHTML=layout[index][j];
+                if(layout[index][j]==100){
+                    tiles[index][j].innerHTML="&nbsp";
+                }
+            }     
+        }
+        for (let j = 0; j < 4; j++) {
+            for (let k = 0; k < 4; k++) {
+                if(layout[j][k]==100){
+                    tiles[j][k].style.backgroundColor="white";
+                }
+            }
+            blank.style.backgroundColor="white";
+        }
+        if(layout[3][3]==100){
+            tiles[3][3].style.backgroundColor="white"; 
+        }
+        else{
+            tiles[3][3].style.backgroundColor=colors[3][3];
+        }
+        //blank.innerHTML="&nbsp";
+    }
+    function move(tileNum){
+        moved=false;
+        row=null;
+        column=null;
+        for (let index = 0; index < layout.length; index++) {
+            for (let j = 0; j < layout[index].length; j++) {
+                if(layout[index][j]==tileNum){
+                    row=index;
+                    column=j;
+                }
+            }     
+        }
+
+        hiddenColor=blank.style.backgroundColor;
+        if(row>0 && layout[row-1][column]==100){
+            moved=true;
+            layout[row-1][column]=tileNum;
+            layout[row][column]=100;
+            colors[row-1][column]=colors[row][column];
+            colors[row][column]=hiddenColor;
+        }
+        else if(row<3 && layout[row+1][column]==100){
+            moved=true;
+            layout[row+1][column]=tileNum;
+            layout[row][column]=100;
+            colors[row+1][column]=colors[row][column];
+            colors[row][column]=hiddenColor;
+            
+        }
+        else if(column>0 && layout[row][column-1]==100){
+            moved=true;
+            layout[row][column-1]=tileNum;
+            layout[row][column]=100;
+            colors[row][column-1]=colors[row][column];
+            colors[row][column]=hiddenColor;
+         
+        }
+        else if(column<3 && layout[row][column+1]==100){
+            moved=true;
+            layout[row][column+1]=tileNum;
+            layout[row][column]=100;
+            colors[row][column+1]=colors[row][column];
+            colors[row][column]=hiddenColor;
+        }
+        reapplyTiles();
+        if(moved){
+            score++;
+            document.getElementById("score").innerHTML="Score: " + score;
+        }
+    }
+    function reset(){
+        document.body.style.backgroundColor="white";
+        init();
+    }
+    function randomMove(moves){
+        let num=Math.floor(Math.random() * ((16-1)+1) + 1);
+        while(moves>0){
+            num=Math.floor(Math.random() * ((16-1)+1) + 1);
+            if(num==16){
+                num=100;
+            }
+            clicked(num);
+            moves--;
+        }
+    }
+</script>
+<body onload="init();">
+    <div class="game">
+        <p onclick="clicked(1);" id="1">1</p>
+        <p onclick="clicked(2);" id="2">2</p>
+        <p onclick="clicked(3);" id="3">3</p>
+        <p onclick="clicked(4);" id="4">4</p>
+        <p onclick="clicked(5);" id="5">5</p>
+        <p onclick="clicked(6);" id="6">6</p>
+        <p onclick="clicked(7);" id="7">7</p>
+        <p onclick="clicked(8);" id="8">8</p>
+        <p onclick="clicked(9);" id="9">9</p>
+        <p onclick="clicked(10);" id="10">10</p>
+        <p onclick="clicked(11);" id="11">11</p>
+        <p onclick="clicked(12);" id="12">12</p>
+        <p onclick="clicked(13);" id="13">13</p>
+        <p onclick="clicked(14);" id="14">14</p>
+        <p onclick="clicked(15);" id="15">15</p>
+        <p onclick="clicked(100);"id="blank">&nbsp</p>
+    </div>
+    <div>
+        <button onclick="reset();" class="butt">Reset!</button>
+    </div>
+    <p id="score">Score: 0</p>
+    <p>Ⓒ Jonah Reisner</p>
+</body>
+</html>
